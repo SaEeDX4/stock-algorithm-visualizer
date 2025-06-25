@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Trading Algorithm Visualizer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-brown: #8b4513;
+        --dark-brown: #654321;
+        --light-brown: #a0522d;
+        --gold: #daa520;
+        --light-gold: #f4e8c1;
+        --dark-gold: #b8860b;
+        --cream: #fff8dc;
+        --charcoal: #2c2c2c;
+        --light-gray: #f5f5f5;
+        --white: #ffffff;
+        --shadow: rgba(139, 69, 19, 0.15);
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          var(--light-brown) 0%,
+          var(--primary-brown) 50%,
+          var(--dark-brown) 100%
+        );
+        min-height: 100vh;
+        color: var(--charcoal);
+        line-height: 1.6;
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(
+          135deg,
+          var(--charcoal) 0%,
+          var(--primary-brown) 100%
+        );
+        color: var(--white);
+        padding: 2rem 0;
+        box-shadow: 0 4px 20px var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100"><circle cx="25" cy="25" r="1" fill="rgba(218,165,32,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(218,165,32,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(218,165,32,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      }
+
+      .header-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .header-icon {
+        width: 48px;
+        height: 48px;
+        fill: var(--gold);
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 300;
+      }
+
+      /* Main Container */
+      .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+      }
+
+      .content-wrapper {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 25px 50px var(--shadow);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+
+      .content {
+        padding: 3rem;
+      }
+
+      /* Input Section */
+      .input-section {
+        background: linear-gradient(
+          135deg,
+          var(--cream) 0%,
+          var(--light-gold) 100%
+        );
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 3rem;
+        border: 2px solid var(--gold);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .input-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 49%,
+          rgba(218, 165, 32, 0.1) 50%,
+          transparent 51%
+        );
+        background-size: 20px 20px;
+      }
+
+      .input-section > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .input-section label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark-brown);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .input-icon {
+        width: 20px;
+        height: 20px;
+        fill: var(--dark-brown);
+      }
+
+      .input-group {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--dark-gold);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--white);
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1),
+          inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+      }
+
+      /* Button Styles */
+      .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:active {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary-brown),
+          var(--dark-brown)
+        );
+        color: var(--white);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+        color: var(--charcoal);
+      }
+
+      .btn-warning {
+        background: linear-gradient(
+          135deg,
+          var(--light-brown),
+          var(--primary-brown)
+        );
+        color: var(--white);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, var(--charcoal), #444);
+        color: var(--white);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn:disabled:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-icon {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .stat-card {
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid;
+        background: var(--white);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+      }
+
+      .stat-card.current {
+        border-color: var(--primary-brown);
+      }
+      .stat-card.current::before {
+        background: linear-gradient(
+          135deg,
+          var(--primary-brown),
+          var(--dark-brown)
+        );
+      }
+
+      .stat-card.buy {
+        border-color: var(--gold);
+      }
+      .stat-card.buy::before {
+        background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+      }
+
+      .stat-card.profit {
+        border-color: var(--light-brown);
+      }
+      .stat-card.profit::before {
+        background: linear-gradient(
+          135deg,
+          var(--light-brown),
+          var(--primary-brown)
+        );
+      }
+
+      .stat-card h3 {
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        color: var(--charcoal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .stat-card .value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--primary-brown), var(--gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .stat-card .detail {
+        font-size: 1rem;
+        color: var(--light-brown);
+        font-weight: 500;
+      }
+
+      .stat-icon {
+        width: 24px;
+        height: 24px;
+        fill: var(--primary-brown);
+      }
+
+      /* Chart Container */
+      .chart-container {
+        background: linear-gradient(
+          135deg,
+          var(--light-gray) 0%,
+          var(--white) 100%
+        );
+        padding: 2.5rem;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05),
+          0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--cream);
+      }
+
+      .chart-container h3 {
+        margin-bottom: 2rem;
+        color: var(--charcoal);
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .chart {
+        position: relative;
+        height: 400px;
+        background: var(--white);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 2px solid var(--cream);
+        overflow: hidden;
+      }
+
+      .chart::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(218, 165, 32, 0.05) 0%,
+          transparent 70%
+        );
+      }
+
+      .chart svg {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: 1;
+      }
+
+      .price-line {
+        stroke: var(--primary-brown);
+        stroke-width: 4;
+        fill: none;
+        filter: drop-shadow(0 2px 4px rgba(139, 69, 19, 0.3));
+      }
+
+      .grid-line {
+        stroke: rgba(218, 165, 32, 0.2);
+        stroke-width: 1;
+        stroke-dasharray: 5, 5;
+      }
+
+      .price-point {
+        stroke: var(--white);
+        stroke-width: 3;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      }
+
+      .price-point.current {
+        fill: var(--primary-brown);
+      }
+      .price-point.buy {
+        fill: var(--gold);
+      }
+      .price-point.sell {
+        fill: var(--light-brown);
+      }
+
+      .price-text {
+        font-weight: 700;
+        font-size: 14px;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+      }
+
+      .day-text {
+        font-size: 12px;
+        fill: var(--charcoal);
+        opacity: 0.7;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: var(--cream);
+        border-radius: 10px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--charcoal);
+      }
+
+      .legend-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Code Section */
+      .code-section {
+        background: var(--charcoal);
+        color: var(--gold);
+        padding: 2.5rem;
+        border-radius: 15px;
+        margin-bottom: 3rem;
+        font-family: "Fira Code", "Courier New", monospace;
+        overflow-x: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 2px solid var(--primary-brown);
+      }
+
+      .code-section h3 {
+        color: var(--white);
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .code-section pre {
+        line-height: 1.8;
+        font-size: 15px;
+        color: var(--light-gold);
+      }
+
+      /* Result Section */
+      .result-section {
+        background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+        color: var(--charcoal);
+        padding: 2.5rem;
+        border-radius: 15px;
+        text-align: center;
+        display: none;
+        box-shadow: 0 15px 35px rgba(218, 165, 32, 0.3);
+        border: 2px solid var(--primary-brown);
+      }
+
+      .result-section.show {
+        display: block;
+        animation: slideIn 0.5s ease-out;
+      }
+
+      /* Professional, subtle animations only */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes smoothScale {
+        from {
+          transform: scale(0.98);
+          opacity: 0.8;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Smooth professional transitions */
+      .content-wrapper {
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .stat-card {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      }
+
+      .btn {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+        transition: transform 0.1s;
+      }
+
+      .value {
+        transition: all 0.3s ease-out;
+      }
+
+      .chart svg {
+        transition: opacity 0.3s ease-out;
+      }
+
+      .progress-bar {
+        height: 3px;
+        background: var(--cream);
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 1.5rem 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-brown), var(--gold));
+        border-radius: 2px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .result-section h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .result-section p {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .result-section .complexity {
+        margin-top: 1rem;
+        opacity: 0.8;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      /* Footer */
+      .footer {
+        background: linear-gradient(
+          135deg,
+          var(--charcoal) 0%,
+          var(--primary-brown) 100%
+        );
+        color: var(--white);
+        padding: 2rem 0;
+        text-align: center;
+        margin-top: 2rem;
+        box-shadow: 0 -4px 20px var(--shadow);
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .footer p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
+
+      .footer-links a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: var(--light-gold);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .controls {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn {
+          width: 250px;
+          justify-content: center;
+        }
+
+        .content {
+          padding: 2rem;
+        }
+
+        .main-container {
+          padding: 2rem 1rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .chart {
+          height: 300px;
+          padding: 1rem;
+        }
+
+        .legend {
+          gap: 1rem;
+        }
+
+        .footer-links {
+          flex-direction: column;
+          gap: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>
+          <svg class="header-icon" viewBox="0 0 24 24">
+            <path d="M3 3v18h18v-2H5V3H3zm16 5-6 6-4-4-6 6v2h16V8z" />
+          </svg>
+          Stock Trading Algorithm Visualizer
+        </h1>
+        <p>
+          Professional-grade visualization of the optimal buy/sell strategy
+          algorithm
+        </p>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+      <div class="content-wrapper">
+        <div class="content">
+          <!-- Input Section -->
+          <div class="input-section">
+            <label for="priceInput">
+              <svg class="input-icon" viewBox="0 0 24 24">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                />
+              </svg>
+              Configure Price Data (comma-separated values):
+            </label>
+            <div class="input-group">
+              <input
+                type="text"
+                id="priceInput"
+                value="7,1,5,3,6,4"
+                placeholder="Enter price sequence: 7,1,5,3,6,4"
+              />
+              <button class="btn btn-primary" onclick="updatePrices()">
+                <svg class="btn-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                  />
+                </svg>
+                Update Data
+              </button>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="controls">
+            <button class="btn btn-success" id="playBtn" onclick="togglePlay()">
+              <svg class="btn-icon" id="playIcon" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              <span id="playText">Start Analysis</span>
+            </button>
+            <button class="btn btn-warning" onclick="nextStep()" id="nextBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24">
+                <path
+                  d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                />
+              </svg>
+              Next Step
+            </button>
+            <button class="btn btn-secondary" onclick="reset()">
+              <svg class="btn-icon" viewBox="0 0 24 24">
+                <path
+                  d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                />
+              </svg>
+              Reset
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-card current">
+              <h3>
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                  />
+                </svg>
+                Current Analysis Step
+              </h3>
+              <div class="value" id="currentStep">1 / 6</div>
+              <div class="detail" id="currentDetail">Day 1, Price: $7</div>
+            </div>
+            <div class="stat-card buy">
+              <h3>
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                  />
+                </svg>
+                Optimal Buy Price
+              </h3>
+              <div class="value" id="minPrice">-</div>
+              <div class="detail" id="buyDetail">Analyzing...</div>
+            </div>
+            <div class="stat-card profit">
+              <h3>
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"
+                  />
+                </svg>
+                Maximum Profit
+              </h3>
+              <div class="value" id="maxProfit">$0</div>
+              <div class="detail" id="sellDetail">No transactions yet</div>
+            </div>
+          </div>
+
+          <!-- Chart -->
+          <div class="chart-container">
+            <h3>
+              <svg class="stat-icon" viewBox="0 0 24 24">
+                <path
+                  d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"
+                />
+              </svg>
+              Price Movement Analysis
+            </h3>
+            <div class="chart">
+              <svg id="chartSvg" viewBox="0 0 900 300">
+                <!-- Advanced chart will be drawn here -->
+              </svg>
+            </div>
+            <div class="legend">
+              <div class="legend-item">
+                <div
+                  class="legend-dot"
+                  style="background: var(--primary-brown)"
+                ></div>
+                <span>Current Day</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background: var(--gold)"></div>
+                <span>Optimal Buy Point</span>
+              </div>
+              <div class="legend-item">
+                <div
+                  class="legend-dot"
+                  style="background: var(--light-brown)"
+                ></div>
+                <span>Optimal Sell Point</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code Section -->
+          <div class="code-section">
+            <h3>
+              <svg
+                class="stat-icon"
+                viewBox="0 0 24 24"
+                style="fill: var(--white)"
+              >
+                <path
+                  d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
+                />
+              </svg>
+              Algorithm Implementation
+            </h3>
+            <pre id="codeDisplay">
+function maxProfit(prices) {
+  let minPrice = Infinity;  // Currently: Infinity
+  let maxProfit = 0;        // Currently: 0
+  
+  for (let i = 0; i <= 0; i++) {
+    const price = prices[i];
+    if (price < minPrice) {
+      minPrice = price;
+    } else {
+      maxProfit = Math.max(maxProfit, price - minPrice);
+    }
+  }
+  
+  return maxProfit;  // Result: 0
+}</pre
+            >
+          </div>
+
+          <!-- Result Section -->
+          <div class="result-section" id="resultSection">
+            <h3>
+              <svg
+                class="stat-icon"
+                viewBox="0 0 24 24"
+                style="fill: var(--charcoal)"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                />
+              </svg>
+              Analysis Complete
+            </h3>
+            <p id="resultText">
+              Optimal Strategy: Buy on day 2 at $1, sell on day 5 at $6 for a
+              profit of $5.
+            </p>
+            <p class="complexity">
+              Time Complexity: O(n) | Space Complexity: O(1)
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>
+          &copy; 2024 Stock Trading Algorithm Visualizer. Professional Financial
+          Analysis Tools.
+        </p>
+        <div class="footer-links">
+          <a href="#about">About</a>
+          <a href="#documentation">Documentation</a>
+          <a href="#support">Support</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Global variables
+      let prices = [7, 1, 5, 3, 6, 4];
+      let currentStep = 0;
+      let isPlaying = false;
+      let playInterval;
+      let minPrice = Infinity;
+      let maxProfit = 0;
+      let buyDay = -1;
+      let sellDay = -1;
+
+      // Initialize
+      function init() {
+        reset();
+        updateChart();
+      }
+
+      // Update prices from input
+      function updatePrices() {
+        const input = document.getElementById("priceInput").value;
+        try {
+          const newPrices = input
+            .split(",")
+            .map((p) => parseInt(p.trim()))
+            .filter((p) => !isNaN(p));
+          if (newPrices.length > 0) {
+            prices = newPrices;
+            reset();
+            updateChart();
+          } else {
+            alert("Please enter valid comma-separated numbers");
+          }
+        } catch (error) {
+          alert("Please enter valid comma-separated numbers");
+        }
+      }
+
+      // Run algorithm step
+      function runAlgorithmStep(step) {
+        if (step >= prices.length) return;
+
+        let newMinPrice = Infinity;
+        let newMaxProfit = 0;
+        let newBuyDay = -1;
+        let newSellDay = -1;
+
+        for (let i = 0; i <= step; i++) {
+          const price = prices[i];
+          if (price < newMinPrice) {
+            newMinPrice = price;
+            newBuyDay = i;
+          } else {
+            const profit = price - newMinPrice;
+            if (profit > newMaxProfit) {
+              newMaxProfit = profit;
+              newSellDay = i;
+            }
+          }
+        }
+
+        minPrice = newMinPrice;
+        maxProfit = newMaxProfit;
+        buyDay = newBuyDay;
+        sellDay = newSellDay;
+
+        updateDisplay();
+        updateChart();
+        updateCode();
+      }
+
+      // Update display
+      function updateDisplay() {
+        document.getElementById("currentStep").textContent = `${
+          currentStep + 1
+        } / ${prices.length}`;
+        document.getElementById("currentDetail").textContent = `Day ${
+          currentStep + 1
+        }, Price: ${prices[currentStep]}`;
+
+        document.getElementById("minPrice").textContent =
+          minPrice === Infinity ? "-" : `${minPrice}`;
+        document.getElementById("buyDetail").textContent =
+          buyDay >= 0 ? `Day ${buyDay + 1}` : "Analyzing...";
+
+        document.getElementById("maxProfit").textContent = `${maxProfit}`;
+        document.getElementById("sellDetail").textContent =
+          sellDay >= 0 ? `Sell Day ${sellDay + 1}` : "No transactions yet";
+
+        // Show result if complete
+        if (currentStep === prices.length - 1) {
+          document.getElementById("resultSection").classList.add("show");
+          document.getElementById(
+            "resultText"
+          ).textContent = `Optimal Strategy: Buy on day ${
+            buyDay + 1
+          } at ${minPrice}, sell on day ${sellDay + 1} at ${
+            prices[sellDay]
+          } for a profit of ${maxProfit}.`;
+        } else {
+          document.getElementById("resultSection").classList.remove("show");
+        }
+      }
+
+      // Update chart with professional styling
+      function updateChart() {
+        const svg = document.getElementById("chartSvg");
+        const maxPrice = Math.max(...prices);
+        const minPriceValue = Math.min(...prices);
+        const priceRange = maxPrice - minPriceValue;
+        const chartWidth = 900;
+        const chartHeight = 300;
+        const padding = 80;
+        const innerWidth = chartWidth - 2 * padding;
+        const innerHeight = chartHeight - 2 * padding;
+
+        svg.innerHTML = "";
+
+        // Background gradient
+        svg.innerHTML += `
+                <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(218,165,32,0.1);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(218,165,32,0.05);stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge> 
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#chartGradient)"/>
+            `;
+
+        // Grid lines with enhanced styling
+        for (let i = 0; i <= 6; i++) {
+          const y = padding + (i * innerHeight) / 6;
+          const price = maxPrice - (i * priceRange) / 6;
+          svg.innerHTML += `
+                    <line x1="${padding}" y1="${y}" x2="${
+            chartWidth - padding
+          }" y2="${y}" class="grid-line"/>
+                    <text x="${padding - 10}" y="${
+            y + 5
+          }" text-anchor="end" fill="var(--charcoal)" font-size="12" opacity="0.6">${price.toFixed(
+            0
+          )}</text>
+                `;
+        }
+
+        // Vertical grid lines
+        for (let i = 0; i < prices.length; i++) {
+          const x = padding + (i / (prices.length - 1)) * innerWidth;
+          svg.innerHTML += `<line x1="${x}" y1="${padding}" x2="${x}" y2="${
+            chartHeight - padding
+          }" class="grid-line"/>`;
+        }
+
+        // Area under the curve
+        if (currentStep >= 0) {
+          let areaPath = `M ${padding} ${chartHeight - padding}`;
+          for (let i = 0; i <= currentStep; i++) {
+            const x = padding + (i / (prices.length - 1)) * innerWidth;
+            const y =
+              padding + ((maxPrice - prices[i]) / priceRange) * innerHeight;
+            areaPath += ` L ${x} ${y}`;
+          }
+          areaPath += ` L ${
+            padding + (currentStep / (prices.length - 1)) * innerWidth
+          } ${chartHeight - padding} Z`;
+
+          svg.innerHTML += `<path d="${areaPath}" fill="rgba(139,69,19,0.1)" stroke="none"/>`;
+        }
+
+        // Price line with enhanced styling
+        let pathData = "";
+        for (let i = 0; i <= currentStep; i++) {
+          const x = padding + (i / (prices.length - 1)) * innerWidth;
+          const y =
+            padding + ((maxPrice - prices[i]) / priceRange) * innerHeight;
+          pathData += (i === 0 ? "M" : "L") + ` ${x} ${y}`;
+        }
+
+        if (pathData) {
+          svg.innerHTML += `<path d="${pathData}" class="price-line" filter="url(#glow)"/>`;
+        }
+
+        // Price points with enhanced styling
+        for (let i = 0; i <= currentStep; i++) {
+          const x = padding + (i / (prices.length - 1)) * innerWidth;
+          const y =
+            padding + ((maxPrice - prices[i]) / priceRange) * innerHeight;
+          const isBuyDay = i === buyDay;
+          const isSellDay = i === sellDay;
+          const isCurrentDay = i === currentStep;
+
+          let cssClass = "price-point";
+          let radius = 8;
+
+          if (isBuyDay) cssClass += " buy";
+          if (isSellDay) cssClass += " sell";
+          if (isCurrentDay) {
+            cssClass += " current";
+            radius = 12;
+          }
+
+          // Point with enhanced shadow
+          svg.innerHTML += `
+                    <circle cx="${x}" cy="${y}" r="${radius}" class="${cssClass}"/>
+                    <text x="${x}" y="${
+            y - 20
+          }" text-anchor="middle" class="price-text" fill="var(--charcoal)">${
+            prices[i]
+          }</text>
+                    <text x="${x}" y="${
+            chartHeight - padding + 20
+          }" text-anchor="middle" class="day-text">Day ${i + 1}</text>
+                `;
+
+          // Profit line indicator
+          if (isBuyDay && isSellDay && buyDay !== sellDay) {
+            const sellX =
+              padding + (sellDay / (prices.length - 1)) * innerWidth;
+            const sellY =
+              padding +
+              ((maxPrice - prices[sellDay]) / priceRange) * innerHeight;
+
+            svg.innerHTML += `
+                        <line x1="${x}" y1="${y}" x2="${sellX}" y2="${sellY}" 
+                              stroke="var(--gold)" stroke-width="3" stroke-dasharray="5,5" opacity="0.8"/>
+                        <text x="${(x + sellX) / 2}" y="${
+              (y + sellY) / 2 - 10
+            }" text-anchor="middle" 
+                              fill="var(--gold)" font-weight="bold" font-size="14">+${maxProfit}</text>
+                    `;
+          }
+        }
+      }
+
+      // Update code display
+      function updateCode() {
+        const codeDisplay = document.getElementById("codeDisplay");
+        codeDisplay.textContent = `function maxProfit(prices) {
+  let minPrice = Infinity;  // Currently: ${
+    minPrice === Infinity ? "Infinity" : minPrice
+  }
+  let maxProfit = 0;        // Currently: ${maxProfit}
+  
+  for (let i = 0; i <= ${currentStep}; i++) {
+    const price = prices[i];
+    if (price < minPrice) {
+      minPrice = price;
+    } else {
+      maxProfit = Math.max(maxProfit, price - minPrice);
+    }
+  }
+  
+  return maxProfit;  // Result: ${maxProfit}
+}`;
+      }
+
+      // Control functions - clean and professional
+      function togglePlay() {
+        isPlaying = !isPlaying;
+        const playIcon = document.getElementById("playIcon");
+        const playText = document.getElementById("playText");
+
+        if (isPlaying) {
+          playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          playText.textContent = "Pause Analysis";
+
+          playInterval = setInterval(() => {
+            if (currentStep < prices.length - 1) {
+              nextStep();
+            } else {
+              togglePlay();
+            }
+          }, 1200);
+        } else {
+          playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          playText.textContent = "Start Analysis";
+          clearInterval(playInterval);
+        }
+      }
+
+      function nextStep() {
+        if (currentStep < prices.length - 1) {
+          currentStep++;
+          runAlgorithmStep(currentStep);
+
+          // Update next button state
+          const nextBtn = document.getElementById("nextBtn");
+          if (currentStep >= prices.length - 1) {
+            nextBtn.disabled = true;
+          }
+        }
+      }
+
+      function reset() {
+        currentStep = 0;
+        isPlaying = false;
+        minPrice = Infinity;
+        maxProfit = 0;
+        buyDay = -1;
+        sellDay = -1;
+
+        clearInterval(playInterval);
+
+        // Reset UI
+        const playIcon = document.getElementById("playIcon");
+        const playText = document.getElementById("playText");
+        const nextBtn = document.getElementById("nextBtn");
+
+        playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        playText.textContent = "Start Analysis";
+        nextBtn.disabled = false;
+
+        // Reset progress bar
+        const progressBar = document.getElementById("progressBar");
+        progressBar.style.width = "0%";
+
+        runAlgorithmStep(currentStep);
+      }
+
+      // Initialize on page load
+      window.onload = init;
+    </script>
+  </body>
+</html>
